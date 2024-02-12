@@ -24,8 +24,7 @@ def brute_force(matrix, currow, curcol, remaining_moves, route, allroute, visite
             if j != curcol:
                 brute_force(matrix, currow, j, remaining_moves - 1, route, allroute, visited, nexdir)
 
-    route.pop()  # Pop the last element when backtracking
-# Example usage
+    route.pop()
 
 def calculatepoint(route, sequencedict):
     result=0
