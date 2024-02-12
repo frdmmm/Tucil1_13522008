@@ -1,39 +1,32 @@
 import numpy as np
 import random
 import time
-def brute_force(matrix, currow, curcol, remaining_moves, route,allroute, vertical=False ):
+def brute_force(matrix, currow, curcol, remaining_moves, route, allroute, visited, vertical=False):
     if remaining_moves == 0:
-        if route not in allroute:
-            allroute.append(route)
+        if tuple(route) not in visited:
+            allroute.append(route.copy())
+            visited.add(tuple(route))
         return
 
-    route.append((matrix[currow][curcol], (currow, curcol)))
+    if (matrix[currow][curcol], (currow, curcol)) not in route:
+        route.append((matrix[currow][curcol], (currow, curcol)))
+    else:
+        return
 
     nexdir = not vertical
 
     if nexdir:
         for i in range(len(matrix)):
             if i != currow:
-                brute_force(matrix, i, curcol, remaining_moves - 1, route.copy(),allroute, nexdir)
+                brute_force(matrix, i, curcol, remaining_moves - 1, route, allroute, visited, nexdir)
     else:
         for j in range(len(matrix[0])):
             if j != curcol:
-                brute_force(matrix, currow, j, remaining_moves - 1, route.copy(),allroute, nexdir)
+                brute_force(matrix, currow, j, remaining_moves - 1, route, allroute, visited, nexdir)
 
+    route.pop()  # Pop the last element when backtracking
 # Example usage
-# matrix = [
-#     ['7a', '55', 'e9', 'e9', '1c', '55'],
-#     ['55', '7a', '1c', '6a', 'e9', '55'],
-#     ['55', '1c', '1c', '55', '39', 'bd'],
-#     ['bd', '1c', '7a', '1c', '55', 'bd'],
-#     ['bd', '55', 'bd', '7a', '1c', '1c'],
-#     ['1c', '55', '55', '7a', '55', '7a']
-# ]
-# allroute=[]
-# for i in range(len(matrix)):
-#     brute_force(matrix, 0, i, 7, [], allroute)
-# for route in allroute:
-#     print(route)
+
 def calculatepoint(route, sequencedict):
     result=0
     for key, value in sequencedict.items():
@@ -60,16 +53,12 @@ def random_matrix(tokens, m, n):
     matrix = [[random.choice(tokens) for _ in range(n)] for _ in range(m)]
     return matrix
 def random_sequencedict(tokens, max_token, amount):
-    if max_token > len(tokens):
-        raise ValueError("Max token amount exceeds the number of available tokens.")
     sequencedict = {}
     for _ in range(amount):
         num_token = random.randint(1, max_token)
-        rand_token = random.sample(tokens, num_token)
-        key = tuple(rand_token)
+        rand_token = random.choices(tokens, k=num_token)
         value = random.randint(1, 100)
-        sequencedict[key] = value
-
+        sequencedict[tuple(rand_token)] = value
     return sequencedict
 def printmatrix(matrix):
     for i in range(len(matrix)):
@@ -109,9 +98,10 @@ if __name__ == "__main__":
     elif len(sys.argv)==2:
         buffer_size, matrix, sequencedict=readtxt(sys.argv[1])
         allroute=[]
+        visited=set()
         start_time = time.time()
         for i in range(len(matrix)):
-            brute_force(matrix, 0, i, buffer_size, [],allroute)
+            brute_force(matrix, 0, i, buffer_size, [],allroute, visited)
         hasil = {(tuple(route), calculatepoint(tuple(element[0] for element in route), sequencedict)) for route in allroute}
         max_key = max(hasil, key=lambda k: k[1])
         solution(max_key, start_time)
