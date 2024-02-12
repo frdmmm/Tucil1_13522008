@@ -121,8 +121,9 @@ if __name__ == "__main__":
         for key, value in sequencedict.items():
             print(f"{key} : {value}")
         allroute=[]
+        visited=set()
         for i in range(len(matrix)):
-            brute_force(matrix, 0, i, buffer_size, [],allroute)
+            brute_force(matrix, 0, i, buffer_size, [],allroute, visited)
         hasil = {(tuple(route), calculatepoint(tuple(element[0] for element in route), sequencedict)) for route in allroute}
         max_key = max(hasil, key=lambda k: k[1])
         solution(max_key, start_time)
